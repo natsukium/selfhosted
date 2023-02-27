@@ -1,0 +1,23 @@
+services:
+  jupyter-server:
+    build:
+      context: .
+      dockerfile: Containerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - /usr/lib/wsl/lib:/usr/local/nvidia/lib
+      - /notebooks:/notebooks
+    command:
+      --port=8888 --NotebookApp.token=${JUPYTER_SECRET_TOKEN}
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  notebooks:

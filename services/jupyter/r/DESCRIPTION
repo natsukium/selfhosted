@@ -1,0 +1,9 @@
+Type: project
+Description: Jupyter Sandbox
+Depends:
+  IRkernel,
+  polycor,
+  rstatix,
+  tidymodels,
+  tidyverse,
+  umap

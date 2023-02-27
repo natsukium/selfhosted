@@ -1,0 +1,47 @@
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest>=7.2.1",
+]
+edit = [
+    "black>=23.1.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "flake8-pyproject>=1.2.2",
+    "pycln>=2.1.3",
+    "pyright>=1.1.295",
+]
+
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "natsukium", email = "tomoya.otabi@gmail.com"},
+]
+dependencies = [
+    "lightgbm",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "plotly",
+    "polars",
+    "pygwalker>=0.1.4.3",
+    "ray[tune]",
+    "scikit-learn",
+    "scipy",
+    "torch",
+    "ydata-profiling>=4.0.0",
+]
+requires-python = ">=3.10,<3.11"
+license = {text = "CC0"}
+
+[project.optional-dependencies]
+jupyter = [
+    "jupyter>=1.0.0",
+    "jupyter-http-over-ws>=0.0.8",
+]
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"

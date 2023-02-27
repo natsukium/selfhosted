@@ -1,0 +1,73 @@
+FROM nvidia/cuda:11.7.0-cudnn8-devel-ubuntu22.04 AS python-builder
+
+ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /build
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.10 \
+        python3-pip
+
+RUN pip install --no-cache-dir -U pip setuptools wheel && \
+    pip install --no-cache-dir pdm
+
+COPY ./python/pyproject.toml ./python/pdm.lock ./
+RUN mkdir __pypackages__ && \
+    pdm install -G jupyter --no-lock
+
+
+FROM ubuntu:22.04 AS r-builder
+
+ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /build
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        curl \
+        gfortran \
+        intel-mkl \
+        libcurl4-openssl-dev \
+        libfontconfig1-dev \
+        libfreetype6-dev \
+        libfribidi-dev \
+        libharfbuzz-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libtiff5-dev \
+        libssl-dev \
+        libxml2-dev \
+        r-base
+
+RUN mkdir -p renv
+COPY ./r/renv.lock ./r/DESCRIPTION ./r/.Rprofile ./
+COPY ./r/activate.R ./renv/
+
+RUN R -q -e 'install.packages("renv"); renv::restore(); renv::isolate()'
+
+
+FROM nvidia/cuda:11.7.0-cudnn8-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV PYTHONPATH /packages/python
+
+WORKDIR /notebooks
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.10 \
+        r-base
+
+COPY --from=python-builder /build/__pypackages__/3.10/lib /packages/python
+COPY --from=python-builder /build/__pypackages__/3.10/bin /usr/local/bin
+
+COPY --from=r-builder /build/renv/library/*/* /usr/lib/R/library
+
+RUN jupyter serverextension enable --py jupyter_http_over_ws && \
+    R -q -e 'IRkernel::installspec()'
+
+ENTRYPOINT ["jupyter", "notebook", "--ip=0.0.0.0", "--allow-root", "--no-browser", "--NotebookApp.allow_origin=https://colab.research.google.com", "--NotebookApp.port_retries=0"]
+CMD ["--port=8888", "--NotebookApp.token=''"]
