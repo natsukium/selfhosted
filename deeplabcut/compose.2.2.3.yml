@@ -1,0 +1,6 @@
+services:
+  deeplabcut:
+    image: deeplabcut:2.2.3
+    build:
+      context: ./2.2.3
+      dockerfile: Containerfile

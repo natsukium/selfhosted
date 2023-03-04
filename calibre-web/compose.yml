@@ -1,0 +1,8 @@
+services:
+  calibre-web:
+    image: calibre-web:0.6.19
+    ports:
+      - "8083:8083"
+    volumes:
+      - /home/gazelle/books:/books
+    restart: always

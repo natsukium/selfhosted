@@ -1,0 +1,16 @@
+services:
+  napari:
+    image: ghcr.io/napari/napari:0.4.17
+    volumes:
+      - /mnt/c/Users/tomoya/Videos:/project
+    # command:
+    #   python -m napari
+    ports:
+      - "9876:9876"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

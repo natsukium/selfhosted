@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calibre-web
+  labels:
+    app: calibre-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calibre-web
+  template:
+    metadata:
+      labels:
+        app: calibre-web
+    spec:
+      containers:
+        - name: calibre-web
+          image: calibre-web:0.6.19
+          ports:
+            - containerPort: 8083
+          volumeMounts:
+            - name: books
+              mountPath: /books
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: books
+          hostPath:
+            path: /home/gazelle/books
+        - name: config
+          hostPath:
+            path: /home/gazelle/src/private/github.com/natsukium/selfhosted/calibre-web

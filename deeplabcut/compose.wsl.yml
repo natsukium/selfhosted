@@ -1,0 +1,11 @@
+services:
+  deeplabcut:
+    volumes:
+      - /usr/lib/wsl/lib:/usr/local/nvidia/lib
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg
+    environment:
+      # - DISPLAY
+      - WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR
+      - PULSE_SERVER
