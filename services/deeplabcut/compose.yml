@@ -1,0 +1,41 @@
+services:
+  deeplabcut:
+    image: deeplabcut:${DLC_VERSION}
+    build:
+      context: ./deeplabcut
+      dockerfile: Containerfile
+      args:
+        - DLC_VERSION=${DLC_VERSION}
+    volumes:
+      - ${WIN_HOME}/Videos:/root/Desktop
+      - /usr/lib/wsl/lib:/usr/local/nvidia/lib
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: always
+    environment:
+      - DISPLAY=novnc:0
+    depends_on:
+      - novnc
+    networks:
+      - x11
+
+  novnc:
+    build:
+      context: ./novnc
+      dockerfile: Containerfile
+    ports:
+      - "8088:8088"
+    environment:
+      - DISPLAY=:0.0
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+    networks:
+      - x11
+
+networks:
+  x11:
