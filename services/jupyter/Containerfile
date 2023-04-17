@@ -42,11 +42,11 @@ RUN apt-get update && \
         libxml2-dev \
         r-base
 
-RUN mkdir -p renv
-COPY ./r/renv.lock ./r/DESCRIPTION ./r/.Rprofile ./
-COPY ./r/activate.R ./renv/
+COPY ./r/renv.lock ./r/DESCRIPTION ./
 
-RUN R -q -e 'install.packages("renv"); renv::restore(); renv::isolate()'
+ENV MAKEFLAGS -j4
+
+RUN R -q -e 'install.packages("renv"); renv::restore()'
 
 
 FROM nvidia/cuda:11.7.0-cudnn8-devel-ubuntu22.04
@@ -64,7 +64,7 @@ RUN apt-get update && \
 COPY --from=python-builder /build/__pypackages__/3.10/lib /packages/python
 COPY --from=python-builder /build/__pypackages__/3.10/bin /usr/local/bin
 
-COPY --from=r-builder /build/renv/library/*/* /usr/lib/R/library
+COPY --from=r-builder /usr/local/lib/R/site-library /usr/lib/R/library
 
 RUN jupyter serverextension enable --py jupyter_http_over_ws && \
     R -q -e 'IRkernel::installspec()'
